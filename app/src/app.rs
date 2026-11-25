@@ -672,7 +672,7 @@ impl TerminalApp {
             app.save_layout();
         }
         app.refresh_layout_names();
-        if provider == "humanplane" { app.execute("SEC ETH 5M"); }
+        if provider == "humanplane" { app.execute("SECF ETH 5M"); }
         app.worker.send(Request::Latest { limit: 2_000 });
         app.worker.send(Request::SearchPoliticians(String::new()));
         app.worker.send(Request::Alerts);
