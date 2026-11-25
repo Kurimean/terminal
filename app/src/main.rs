@@ -35,8 +35,8 @@ fn main() -> eframe::Result {
         .filter(|n| matches!(n, 1 | 2 | 4 | 8))
         .unwrap_or(if cfg!(target_os = "macos") { 4 } else { 1 });
     let mut viewport = egui::ViewportBuilder::default()
-        .with_title("Terminal")
-        .with_app_id("terminal-rs")
+        .with_title("PMQuant Terminal · humanplane")
+        .with_app_id("pmquant-humanplane-terminal")
         .with_icon(eframe::icon_data::from_png_bytes(include_bytes!("../assets/icon.png")).expect("app icon"))
         .with_inner_size([1600.0, 960.0])
         .with_min_inner_size([900.0, 560.0]);
@@ -65,7 +65,7 @@ fn main() -> eframe::Result {
                 rs.target_format,
                 u32::from(msaa),
             ));
-            let provider = tr_data::from_env();
+            let provider = tr_data::humanplane_provider()?;
             let name = provider.name().to_string();
             let worker = worker::Worker::spawn(cc.egui_ctx.clone(), provider)?;
             tracing::info!("window + GPU ready in {:?} (adapter: {})", t0.elapsed(), rs.adapter.get_info().name);

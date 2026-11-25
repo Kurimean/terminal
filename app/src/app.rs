@@ -576,7 +576,7 @@ impl TerminalApp {
             trading: Default::default(),
             demo,
             worker,
-            provider,
+            provider: provider.clone(),
             panes: Vec::new(),
             dock: Node::default(),
             focus: 0,
@@ -625,7 +625,7 @@ impl TerminalApp {
             alerts: Vec::new(),
             congress_status: String::new(),
             congress_checked: None,
-            watchlist: DEFAULT_WATCHLIST.map(String::from).to_vec(),
+            watchlist: if provider == "humanplane" { Vec::new() } else { DEFAULT_WATCHLIST.map(String::from).to_vec() },
             quotes: HashMap::new(),
             last_quotes: None,
             last_feed: None,
@@ -650,7 +650,7 @@ impl TerminalApp {
         if let Some(s) = &settings {
             if !s.watchlist.is_empty() {
                 // Older settings stored bare tickers; normalise to market keys.
-                app.watchlist = s.watchlist.iter().map(|w| tr_data::security(w).key()).collect();
+                app.watchlist = s.watchlist.iter().map(|w| tr_data::market_key(w)).collect();
                 app.watchlist.dedup();
             }
             app.sidebar_open = s.sidebar;
@@ -672,6 +672,7 @@ impl TerminalApp {
             app.save_layout();
         }
         app.refresh_layout_names();
+        if provider == "humanplane" { app.execute("SEC ETH 5M"); }
         app.worker.send(Request::Latest { limit: 2_000 });
         app.worker.send(Request::SearchPoliticians(String::new()));
         app.worker.send(Request::Alerts);
@@ -711,7 +712,7 @@ impl TerminalApp {
                 }
                 Action::OpenProfile(q) => self.open_panel(PaneKind::Profile { query: q, data: None, loading: true }),
                 Action::AddToWatchlist(s) => {
-                    let key = tr_data::security(&s).key();
+                    let key = tr_data::market_key(&s);
                     if !self.watchlist.contains(&key) {
                         self.status = format!("Added {key} to the watchlist");
                         self.watchlist.push(key);

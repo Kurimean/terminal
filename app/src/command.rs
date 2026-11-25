@@ -382,6 +382,13 @@ fn parse_function(head: &str, rest: &[&str]) -> Option<Function> {
 pub fn parse(input: &str) -> Option<Command> {
     let tokens: Vec<&str> = input.split_whitespace().filter(|t| !t.eq_ignore_ascii_case("<GO>")).collect();
     let (&head, rest) = tokens.split_first()?;
+    if let Some(id) = tr_data::humanplane::token(head) {
+        let key = format!("PM:{id}");
+        return match rest.split_first() {
+            None => Some(Command::Symbol(key)),
+            Some((&f, args)) => Some(Command::SymbolFunction(key, parse_function(f, args)?)),
+        };
+    }
     // `<TICKER> <YELLOW KEY>` is always a security, even if the ticker spells a function.
     let keyed = match rest {
         [k, ..] if YellowKey::parse(k).is_some() => true,

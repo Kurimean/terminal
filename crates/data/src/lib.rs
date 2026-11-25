@@ -16,6 +16,7 @@ pub mod alpaca;
 pub mod cache;
 pub mod crypto;
 pub mod markets;
+pub mod humanplane;
 pub mod rss;
 pub mod sample;
 pub mod treasury;
@@ -507,4 +508,14 @@ mod tests {
         assert_eq!(q.change(), 10.0);
         assert!((q.change_pct() - 10.0).abs() < 1e-9);
     }
+}
+
+pub fn humanplane_provider() -> Result<Provider> {
+    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
+    let url = std::env::var("TR_HUMANPLANE_URL").unwrap_or_else(|_| "http://127.0.0.1:8080".into());
+    Ok(Arc::new(humanplane::Humanplane::new(&url)?))
+}
+
+pub fn market_key(symbol: &str) -> String {
+    humanplane::token(symbol).map_or_else(|| security(symbol).key(), |id| format!("PM:{id}"))
 }

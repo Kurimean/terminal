@@ -1,0 +1,26 @@
+name: PMQuant macOS
+on:
+  push:
+    branches: [humanplane-provider-v0.1.1]
+    paths: [scripts/bundle-pmquant.sh]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dmg:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - run: |
+          cargo build --locked --release -p terminal-rs --target aarch64-apple-darwin
+          cargo build --locked --release -p terminal-rs --target x86_64-apple-darwin
+          bash scripts/bundle-pmquant.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PMQuant-Terminal-macOS
+          path: PMQuant-Terminal.dmg
+          if-no-files-found: error
+          retention-days: 7

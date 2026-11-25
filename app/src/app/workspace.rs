@@ -456,7 +456,7 @@ impl TerminalApp {
     /// Point a symbol-driven pane at `symbol`. Returns whether it follows symbols.
     pub(super) fn set_pane_symbol(&mut self, i: usize, symbol: &str) -> bool {
         let id = self.panes[i].id;
-        let key = tr_data::security(symbol).key();
+        let key = tr_data::market_key(symbol);
         match &mut self.panes[i].kind {
             PaneKind::Chart(c) => {
                 if c.symbol != key {
@@ -498,7 +498,7 @@ impl TerminalApp {
                 self.set_pane_symbol(i, symbol);
             }
         }
-        self.status = format!("{} ({} link)", tr_data::security(symbol).key(), link.label());
+        self.status = format!("{} ({} link)", tr_data::market_key(symbol), link.label());
     }
 
     pub(super) fn set_link(&mut self, id: PaneId, link: Option<Link>) {
@@ -524,7 +524,7 @@ impl TerminalApp {
     /// Load a security: into the focused pane when it follows symbols (and its link group),
     /// else into the focused pane's link group, else into a chart.
     pub(super) fn open_security(&mut self, symbol: &str) {
-        let key = tr_data::security(symbol).key();
+        let key = tr_data::market_key(symbol);
         if let Some(i) = self.idx(self.focus) {
             let link = self.panes[i].link;
             if self.panes[i].kind.follows_symbol() {
@@ -659,7 +659,7 @@ impl TerminalApp {
         let given = (words.len() > 1)
             .then(|| tr_core::Security::resolve_tokens(&words[1..]).map(|(s, _)| s.key()))
             .flatten()
-            .or(symbol.map(|s| tr_data::security(s).key()));
+            .or(symbol.map(|s| tr_data::market_key(s)));
         let current = given.clone().or_else(|| self.focused_symbol());
         let d = &self.prefs.panels;
         Some(match head.as_str() {
