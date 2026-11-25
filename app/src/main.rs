@@ -12,6 +12,7 @@ mod layouts;
 mod markets_view;
 mod palette;
 mod prefs;
+mod pm;
 mod theme;
 mod themes;
 mod widgets;
@@ -34,13 +35,14 @@ fn main() -> eframe::Result {
         .and_then(|v| v.parse().ok())
         .filter(|n| matches!(n, 1 | 2 | 4 | 8))
         .unwrap_or(if cfg!(target_os = "macos") { 4 } else { 1 });
+    let pm = !std::env::args().any(|arg| arg == "--terminal");
     let mut viewport = egui::ViewportBuilder::default()
-        .with_title("Terminal")
+        .with_title(if pm { "PMQuant Terminal" } else { "Terminal" })
         .with_app_id("terminal-rs")
         .with_icon(eframe::icon_data::from_png_bytes(include_bytes!("../assets/icon.png")).expect("app icon"))
         .with_inner_size([1600.0, 960.0])
         .with_min_inner_size([900.0, 560.0]);
-    if cfg!(target_os = "macos") {
+    if !pm && cfg!(target_os = "macos") {
         // Content extends under a transparent title bar; tr-macos adds the unified
         // toolbar (inset traffic lights) and sidebar vibrancy on the first frame.
         viewport = viewport
@@ -59,6 +61,10 @@ fn main() -> eframe::Result {
         "terminal-rs",
         options,
         Box::new(move |cc| {
+            if pm {
+                theme::configure(&cc.egui_ctx, &themes::terminal_dark(), egui::Color32::from_rgb(235, 168, 63));
+                return Ok(Box::new(pm::Dashboard::new(&cc.egui_ctx)) as Box<dyn eframe::App>);
+            }
             let rs = cc.wgpu_render_state.as_ref().ok_or("terminal-rs requires the wgpu renderer")?;
             rs.renderer.write().callback_resources.insert(tr_chart::gpu::ChartRenderer::new(
                 &rs.device,

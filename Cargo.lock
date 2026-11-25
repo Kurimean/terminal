@@ -4095,6 +4095,7 @@ dependencies = [
  "egui",
  "futures",
  "raw-window-handle",
+ "reqwest",
  "serde",
  "serde_json",
  "tokio",
