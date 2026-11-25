@@ -6,7 +6,7 @@ app="$stage/PMQuant Terminal.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp app/assets/AppIcon.icns "$app/Contents/Resources/"
 lipo -create target/{aarch64-apple-darwin,x86_64-apple-darwin}/release/terminal-rs -output "$app/Contents/MacOS/PMQuantTerminal"
-lipo -verify_arch arm64 x86_64 "$app/Contents/MacOS/PMQuantTerminal"
+lipo "$app/Contents/MacOS/PMQuantTerminal" -verify_arch arm64 x86_64
 cat > "$app/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
