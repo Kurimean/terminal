@@ -2,7 +2,7 @@ name: PMQuant macOS
 on:
   push:
     branches: [humanplane-provider-v0.1.1]
-    paths: [scripts/bundle-pmquant.sh]
+    paths: ['.github/workflows/pmquant-macos.yml', 'app/**', 'crates/data/**', 'scripts/bundle-pmquant.sh']
   workflow_dispatch:
 permissions:
   contents: read
